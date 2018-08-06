@@ -64,7 +64,7 @@ def runDoxygen(basedir, cfg=None, workdir=None, dest=None, tryClone=False):
                     if len(reponame) == 0:
                         reponame = "repo"
                     repopath = os.path.join(tmpDir, reponame)
-                    subprocess.check_call(["git", "clone", basedir, repopath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.check_call(["git", "clone", "--depth", "1", basedir, repopath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     runDoxygen(repopath, cfg=cfg, workdir=workdir, dest=dest, tryClone=False)
             else:
                 raise ValueError("'{0}' represents neither an existing directory nor a valid URL".format(basedir))
