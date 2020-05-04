@@ -7,7 +7,6 @@ logger = logging.getLogger("mkdocs")
 from mkdocs.config import config_options as mkd
 from .configitems import ConfigItems
 from mkdocs.plugins import BasePlugin
-from mkdocs.utils import string_types
 
 def get_doxygen_key(doxyfile, key, default=None):
     try:
@@ -72,9 +71,9 @@ def runDoxygen(basedir, cfg=None, workdir=None, dest=None, tryClone=False):
 class DoxygenPlugin(BasePlugin):
     config_scheme = (
         ("packages", ConfigItems(
-            ("url"    , mkd.Type(string_types)),
-            ("config" , mkd.Type(string_types)),
-            ("workdir", mkd.Type(string_types)),
+            ("url"    , mkd.Type(str)),
+            ("config" , mkd.Type(str)),
+            ("workdir", mkd.Type(str)),
             )),
         ("tryclone", mkd.Type(bool, default=False)),
         )
