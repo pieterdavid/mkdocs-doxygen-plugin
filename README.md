@@ -20,11 +20,19 @@ can be specified (by default `Doxyfile` and `doxygen.cfg` are searched for), as 
 the working directory (relative to the directory with the Doxygen configuration file).
 
 `url` can be a local path as well as a remote url. In the latter case, `git clone` 
-is used to get a working copy (only if enabled by setting `tryclone` to true), e.g.
+is used to get a working copy (only if enabled by setting `tryclone` to true).
+
+If your doxygen is distributed across submodules linked into your top level repo
+then the `recursive` option will clone these and so the top level doxygen will
+have access to this code for collecting the documentation as well.  By default this will
+not happen.
+
+An example of such a 
 ```yaml
 plugins:
   - doxygen:
       tryclone: yes
+      recursive: yes
       packages:
         - doxygen:
             url    : .
@@ -33,3 +41,4 @@ plugins:
             config : docs/doxygen.cfg
             workdir: . ## could be left out in this case
 ```
+

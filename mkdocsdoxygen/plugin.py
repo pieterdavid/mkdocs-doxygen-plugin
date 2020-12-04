@@ -17,7 +17,7 @@ def get_doxygen_key(doxyfile, key, default=None):
         else:
             raise RuntimeError("Could not find a value for '{0}' in doxygen config file '{1}'".format(key, doxyfile))
 
-def runDoxygen(basedir, cfg=None, workdir=None, dest=None, tryClone=False):
+def runDoxygen(basedir, cfg=None, workdir=None, dest=None, tryClone=False, recursive=False):
     if os.path.isdir(basedir):
         basedir = os.path.abspath(basedir)
         ## check config (and guess, if needed)
@@ -63,8 +63,11 @@ def runDoxygen(basedir, cfg=None, workdir=None, dest=None, tryClone=False):
                     if len(reponame) == 0:
                         reponame = "repo"
                     repopath = os.path.join(tmpDir, reponame)
-                    subprocess.check_call(["git", "clone", "--depth", "1", basedir, repopath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    runDoxygen(repopath, cfg=cfg, workdir=workdir, dest=dest, tryClone=False)
+                    if recursive:
+                        subprocess.check_call(["git", "clone", "--recursive", "--depth", "1", basedir, repopath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    else:
+                        subprocess.check_call(["git", "clone", "--depth", "1", basedir, repopath], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    runDoxygen(repopath, cfg=cfg, workdir=workdir, dest=dest, tryClone=False, recursive=False)
             else:
                 raise ValueError("'{0}' represents neither an existing directory nor a valid URL".format(basedir))
 
@@ -76,6 +79,7 @@ class DoxygenPlugin(BasePlugin):
             ("workdir", mkd.Type(str)),
             )),
         ("tryclone", mkd.Type(bool, default=False)),
+        ("recursive", mkd.Type(bool, default=False)),
         )
 
     def on_post_build(self, config):
@@ -87,6 +91,6 @@ class DoxygenPlugin(BasePlugin):
                     icfg = cfg.get("config")
                     logger.info("Running doxygen for {0} with {1}, saving into {2}".format(
                         (basedir if basedir != "." else "current directory"), (icfg if icfg else "default config"), outpath))
-                    runDoxygen(basedir, cfg=icfg, workdir=cfg.get("workdir"), dest=outpath, tryClone=self.config["tryclone"])
+                    runDoxygen(basedir, cfg=icfg, workdir=cfg.get("workdir"), dest=outpath, tryClone=self.config["tryclone"], recursive=self.config["recursive"])                
                 except Exception as e:
                     logger.error("Skipped doxygen for package {0}: {1!s}".format(outname, e))
